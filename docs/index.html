@@ -6,8 +6,10 @@
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; }
         table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: middle; }
         th { background-color: #f2f2f2; }
+        .logo { height: 40px; width: auto; vertical-align: middle; margin-right: 10px; }
+        .stock-row { display: flex; align-items: center; }
     </style>
 </head>
 <body>
@@ -18,13 +20,29 @@
     <table id="stockTable">
         <thead>
             <tr>
+                <th>Company</th>
                 <th>Symbol</th>
                 <th>Price (AED)</th>
                 <th>Change</th>
                 <th>Change %</th>
             </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+            <tr>
+                <td><img src="images/salik-logo.png" alt="SALIK" class="logo"> SALIK</td>
+                <td>SALIK</td>
+                <td class="salik-price"></td>
+                <td class="salik-change"></td>
+                <td class="salik-change-pct"></td>
+            </tr>
+            <tr>
+                <td><img src="images/dtc-logo.jpg" alt="DTC" class="logo"> DTC</td>
+                <td>DTC</td>
+                <td class="dtc-price"></td>
+                <td class="dtc-change"></td>
+                <td class="dtc-change-pct"></td>
+            </tr>
+        </tbody>
     </table>
     
     <script>
@@ -32,20 +50,28 @@
             .then(response => response.text())
             .then(data => {
                 const lines = data.split('\n');
-                const headers = lines[0].split(',');
-                const tbody = document.querySelector('#stockTable tbody');
+                const stocks = {};
                 
+                // Parse CSV data
                 for(let i = 1; i < lines.length; i++) {
                     if(lines[i].trim()) {
-                        const values = lines[i].split(',');
-                        const row = document.createElement('tr');
-                        for(let j = 0; j < 4; j++) {
-                            const cell = document.createElement('td');
-                            cell.textContent = values[j];
-                            row.appendChild(cell);
-                        }
-                        tbody.appendChild(row);
+                        const [symbol, price, change, changePct] = lines[i].split(',');
+                        stocks[symbol] = { price, change, changePct };
                     }
+                }
+                
+                // Update SALIK data
+                if(stocks.SALIK) {
+                    document.querySelector('.salik-price').textContent = stocks.SALIK.price;
+                    document.querySelector('.salik-change').textContent = stocks.SALIK.change;
+                    document.querySelector('.salik-change-pct').textContent = stocks.SALIK.changePct + '%';
+                }
+                
+                // Update DTC data
+                if(stocks.DTC) {
+                    document.querySelector('.dtc-price').textContent = stocks.DTC.price;
+                    document.querySelector('.dtc-change').textContent = stocks.DTC.change;
+                    document.querySelector('.dtc-change-pct').textContent = stocks.DTC.changePct + '%';
                 }
                 
                 document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
