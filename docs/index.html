@@ -57,18 +57,19 @@
             const arrowIcon = isPositive ? '↑' : '↓';
             const changeSign = isPositive ? '+' : '';
             
-            // Get logo path based on symbol
-            const logoPath = stock.symbol === 'SALIK' 
-                ? 'images/salik-logo.png' 
-                : 'images/dtc-logo.jpg';
+            // Update logo paths to use the images directory
+            const logoSrc = stock.symbol === 'SALIK' 
+                ? './images/salik-logo.png'  // Updated path
+                : './images/dtc-logo.jpg';   // Updated path
             
             return `
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex justify-between items-center mb-4">
-                        <div class="flex items-center gap-4">
-                            <img src="${logoPath}" 
+                        <div class="flex items-center">
+                            <img src="${logoSrc}" 
                                  alt="${stock.symbol} logo" 
-                                 class="company-logo">
+                                 class="company-logo"
+                                 onerror="this.onerror=null; this.src='./images/placeholder.png';">
                             <h2 class="text-xl font-bold">${stock.symbol}</h2>
                         </div>
                     </div>
