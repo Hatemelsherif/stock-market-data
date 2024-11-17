@@ -8,6 +8,8 @@ on:
 jobs:
   update-stocks:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
     - name: Checkout repository
@@ -30,21 +32,25 @@ jobs:
         import requests
         from datetime import datetime
         
-        def get_stock_data():
-            url = "http://localhost:8000/api/v1/stocks"
-            response = requests.get(url)
-            return response.json()
+        try:
+            # Fetch data from your API
+            response = requests.get("http://localhost:8000/api/v1/stocks")
+            data = response.json()
             
-        def save_csv(data):
+            # Create CSV content
+            csv_content = 'Symbol,Price (AED),Change,Change %,Last Update\n'
+            for stock in data['stocks']:
+                csv_content += f"{stock['symbol']},{stock['price']},{stock['change']},{stock['change_percentage'].replace('%','')},{datetime.now().isoformat()}\n"
+            
+            # Save to file
             with open('docs/stocks.csv', 'w') as f:
-                # Write header
-                f.write('Symbol,Price (AED),Change,Change %,Last Update\n')
-                # Write data
-                for stock in data['stocks']:
-                    f.write(f"{stock['symbol']},{stock['price']},{stock['change']},{stock['change_percentage'].replace('%','')},{datetime.now().isoformat()}\n")
-        
-        data = get_stock_data()
-        save_csv(data)
+                f.write(csv_content)
+                
+            print("Successfully updated stocks.csv")
+            
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            raise e
         EOF
         
     - name: Commit and push changes
