@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DFM Stock Data</title>
+    <meta http-equiv="refresh" content="300">
+</head>
+<body>
+    <h1>DFM Stock Data</h1>
+    <p>Last updated: <span id="lastUpdate"></span></p>
+    <p><a href="stocks.csv">Download CSV</a></p>
+    
+    <script>
+        fetch('stocks.csv')
+            .then(response => response.text())
+            .then(data => {
+                const lines = data.split('\n');
+                if (lines.length > 1) {
+                    const lastLine = lines[lines.length - 2];
+                    const lastUpdate = lastLine.split(',').pop();
+                    document.getElementById('lastUpdate').textContent = new Date(lastUpdate).toLocaleString();
+                }
+            });
+    </script>
+</body>
+</html> 

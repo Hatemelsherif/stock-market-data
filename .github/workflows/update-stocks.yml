@@ -1,1 +1,55 @@
- 
+name: Update Stock Data
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # Runs every 5 minutes
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  update-stocks:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+        
+    - name: Fetch and update stock data
+      run: |
+        mkdir -p docs
+        python - <<EOF
+        import requests
+        from datetime import datetime
+        
+        def get_stock_data():
+            url = "http://localhost:8000/api/v1/stocks"
+            response = requests.get(url)
+            return response.json()
+            
+        def save_csv(data):
+            with open('docs/stocks.csv', 'w') as f:
+                # Write header
+                f.write('Symbol,Price (AED),Change,Change %,Last Update\n')
+                # Write data
+                for stock in data['stocks']:
+                    f.write(f"{stock['symbol']},{stock['price']},{stock['change']},{stock['change_percentage'].replace('%','')},{datetime.now().isoformat()}\n")
+        
+        data = get_stock_data()
+        save_csv(data)
+        EOF
+        
+    - name: Commit and push changes
+      run: |
+        git config --global user.name 'GitHub Action'
+        git config --global user.email 'action@github.com'
+        git add docs/stocks.csv
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Update stock data $(date +'%Y-%m-%d %H:%M:%S')" && git push)
