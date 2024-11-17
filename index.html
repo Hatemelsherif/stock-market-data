@@ -54,6 +54,12 @@
         input:checked + .slider:before {
             transform: translateX(26px);
         }
+        .company-logo {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+            margin-right: 12px;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -100,6 +106,11 @@
             const changeClass = isPositive ? 'up' : 'down';
             const arrowIcon = isPositive ? '↑' : '↓';
             const changeSign = isPositive ? '+' : '';
+            
+            // Get logo based on stock symbol
+            const logoSrc = stock.symbol === 'SALIK' 
+                ? './assets/salik-logo.png'  // Update path to match your structure
+                : './assets/dtc-logo.jpg';   // Update path to match your structure
             
             return `
                 <div class="bg-white rounded-lg shadow-md p-6">
