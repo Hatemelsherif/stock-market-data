@@ -3,22 +3,52 @@
 <head>
     <title>DFM Stock Data</title>
     <meta http-equiv="refresh" content="300">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
 </head>
 <body>
     <h1>DFM Stock Data</h1>
     <p>Last updated: <span id="lastUpdate"></span></p>
     <p><a href="stocks.csv">Download CSV</a></p>
     
+    <table id="stockTable">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Price (AED)</th>
+                <th>Change</th>
+                <th>Change %</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    
     <script>
         fetch('stocks.csv')
             .then(response => response.text())
             .then(data => {
                 const lines = data.split('\n');
-                if (lines.length > 1) {
-                    const lastLine = lines[lines.length - 2];
-                    const lastUpdate = lastLine.split(',').pop();
-                    document.getElementById('lastUpdate').textContent = new Date(lastUpdate).toLocaleString();
+                const headers = lines[0].split(',');
+                const tbody = document.querySelector('#stockTable tbody');
+                
+                for(let i = 1; i < lines.length; i++) {
+                    if(lines[i].trim()) {
+                        const values = lines[i].split(',');
+                        const row = document.createElement('tr');
+                        for(let j = 0; j < 4; j++) {
+                            const cell = document.createElement('td');
+                            cell.textContent = values[j];
+                            row.appendChild(cell);
+                        }
+                        tbody.appendChild(row);
+                    }
                 }
+                
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
             });
     </script>
 </body>

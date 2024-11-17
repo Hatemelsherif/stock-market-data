@@ -20,37 +20,34 @@ jobs:
       with:
         python-version: '3.x'
         
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install requests
-        
-    - name: Fetch and update stock data
+    - name: Create stock data
       run: |
         mkdir -p docs
         python - <<EOF
-        import requests
         from datetime import datetime
         
-        try:
-            # Fetch data from your API
-            response = requests.get("http://localhost:8000/api/v1/stocks")
-            data = response.json()
+        # Sample stock data
+        stocks = [
+            {"symbol": "SALIK", "price": "5.29", "change": "-0.06", "change_percentage": "-1.122"},
+            {"symbol": "DTC", "price": "2.69", "change": "0.05", "change_percentage": "1.89"}
+        ]
+        
+        # Create CSV content
+        csv_content = 'Symbol,Price (AED),Change,Change %,Last Update\n'
+        
+        # Add each stock to CSV
+        for stock in stocks:
+            csv_content += f"{stock['symbol']},"
+            csv_content += f"{stock['price']},"
+            csv_content += f"{stock['change']},"
+            csv_content += f"{stock['change_percentage']},"
+            csv_content += f"{datetime.now().isoformat()}\n"
+        
+        # Save to file
+        with open('docs/stocks.csv', 'w') as f:
+            f.write(csv_content)
             
-            # Create CSV content
-            csv_content = 'Symbol,Price (AED),Change,Change %,Last Update\n'
-            for stock in data['stocks']:
-                csv_content += f"{stock['symbol']},{stock['price']},{stock['change']},{stock['change_percentage'].replace('%','')},{datetime.now().isoformat()}\n"
-            
-            # Save to file
-            with open('docs/stocks.csv', 'w') as f:
-                f.write(csv_content)
-                
-            print("Successfully updated stocks.csv")
-            
-        except Exception as e:
-            print(f"Error: {str(e)}")
-            raise e
+        print("Successfully created stocks.csv")
         EOF
         
     - name: Commit and push changes
